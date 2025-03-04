@@ -2,6 +2,7 @@
 This is a simple implementation of YouTube RAG using LlamaIndex and Qdrant or Chroma for VectorDBs.
 
 ## Usage
+Replace `<query>` with your query and `<youtube_url>` with the YouTube URL.
 ```bash
 yt-dlp -f bestaudio --extract-audio --audio-format mp3 <youtube_url> -o "audio/audio.mp3"
 python whisper.py
