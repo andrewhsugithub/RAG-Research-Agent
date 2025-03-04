@@ -1,6 +1,20 @@
 # RAG
 This is a simple implementation of YouTube RAG using LlamaIndex and Qdrant or Chroma for VectorDBs.
 
+## Usage
+- Replace `<query>` with your query and `<youtube_url>` with the YouTube URL.
+    ```bash
+    yt-dlp -f bestaudio --extract-audio --audio-format mp3 <youtube_url> -o "audio/audio.mp3"
+    python whisper.py
+    python rag.py --query <query> --path "./qdrant" --collection "yt" --qdrant
+    ```
+- Explaination of args for `rag.py`:
+    - `--query`: The query you want to search for
+    - `--path`: The path to the VectorDB on disk
+    - `--collection`: The collection name in the VectorDB
+    - `--qdrant`: Use Qdrant as the VectorDB (default)
+    - `--chroma`: Use Chroma as the VectorDB
+
 ## Use Cloud VectorDBs
 - use [Qdrant](https://qdrant.com/) or [Pinecone](https://www.pinecone.io/) *(Note: not supported yet)*
     ```bash
@@ -18,14 +32,7 @@ This is a simple implementation of YouTube RAG using LlamaIndex and Qdrant or Ch
     ```
     See [llama3.1_hf_qdrant.txt](llama3.1_hf_qdrant.txt) for the output.
 
-- youtube
-    ```bash
-    yt-dlp -f bestaudio --extract-audio --audio-format mp3 <youtube_url> -o "audio/audio.mp3"
-    python whisper.py
-    python rag.py --query <query> --path "./qdrant" --collection "yt" --qdrant
-    ```
-
-### Technologies Used:
+## Technologies Used:
 - [LlamaIndex](https://docs.llamaindex.ai/en/stable/)
 
 - Embeddings (Loads from [HuggingFace](https://huggingface.co/)):
