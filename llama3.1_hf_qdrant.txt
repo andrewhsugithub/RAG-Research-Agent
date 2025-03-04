@@ -1,0 +1,274 @@
+==================================Answer==================================
+To create a pipeline object, follow these steps:
+
+1. Decide on the type of pipeline you want to create (e.g., text classification, sentiment analysis, etc.) and the raw entry types it will accept (inputs).
+2. Define the output types of the pipeline (outputs).
+3. Inherit the base class `Pipeline` and implement the four required methods: `preprocess`, `_forward`, `postprocess`, and `_sanitize_parameters`.
+4. Use the `pipeline` function from the `transformers` library to create an instance of the pipeline.
+
+Here is a basic example:
+
+```python
+from transformers import Pipeline
+
+class MyPipeline(Pipeline):
+    def preprocess(self, inputs):
+        # Preprocessing logic goes here
+        return inputs
+
+    def _forward(self, inputs):
+        # Forward pass logic goes here
+        return self.model(inputs)
+
+    def postprocess(self, outputs):
+        # Postprocessing logic goes here
+        return outputs
+
+    def _sanitize_parameters(self, **kwargs):
+        # Sanitize parameters logic goes here
+        return kwargs
+
+my_pipeline = pipeline(task="my_task", model="my_model")
+```
+
+Note that you'll need to replace `"my_task"` and `"my_model"` with the actual task and model names you're using.
+==================================Source docs==================================
+Document 1------------------------------------------------------------
+!--Copyright 2020 The HuggingFace Team. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+
+⚠️ Note that this file is in Markdown but contain specific syntax for our doc-builder (similar to MDX) that may not be
+rendered properly in your Markdown viewer.
+
+-->
+
+# How to create a custom pipeline?
+
+In this guide, we will see how to create a custom pipeline and share it on the [Hub](hf.co/models) or add it to the
+🤗 Transformers library.
+
+First and foremost, you need to decide the raw entries the pipeline will be able to take. It can be strings, raw bytes,
+dictionaries or whatever seems to be the most likely desired input. Try to keep these inputs as pure Python as possible
+as it makes compatibility easier (even through other languages via JSON). Those will be the `inputs` of the
+pipeline (`preprocess`).
+
+Then define the `outputs`. Same policy as the `inputs`. The simpler, the better. Those will be the outputs of
+`postprocess` method.
+
+Start by inheriting the base class `Pipeline` with the 4 methods needed to implement `preprocess`,
+`_forward`, `postprocess`, and `_sanitize_parameters`.
+
+
+```python
+from transformers import Pipeline
+source: huggingface/transformers/blob/main/docs/source/en/add_new_pipeline.md
+score: 1.4560546875
+Document 2------------------------------------------------------------
+1. Start by creating a [`pipeline`] and specify the inference task:
+
+```py
+>>> from transformers import pipeline
+
+>>> transcriber = pipeline(task="automatic-speech-recognition")
+```
+
+2. Pass your input to the [`pipeline`]. In the case of speech recognition, this is an audio input file:
+
+```py
+>>> transcriber("https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac")
+{'text': 'I HAVE A DREAM BUT ONE DAY THIS NATION WILL RISE UP LIVE UP THE TRUE MEANING OF ITS TREES'}
+```
+
+Not the result you had in mind? Check out some of the [most downloaded automatic speech recognition models](https://huggingface.co/models?pipeline_tag=automatic-speech-recognition&sort=trending) 
+on the Hub to see if you can get a better transcription.
+
+Let's try the [Whisper large-v2](https://huggingface.co/openai/whisper-large) model from OpenAI. Whisper was released 
+2 years later than Wav2Vec2, and was trained on close to 10x more data. As such, it beats Wav2Vec2 on most downstream 
+benchmarks. It also has the added benefit of predicting punctuation and casing, neither of which are possible with  
+Wav2Vec2.
+
+Let's give it a try here to see how it performs:
+
+```py
+>>> transcriber = pipeline(model="openai/whisper-large-v2")
+>>> transcriber("https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac")
+{'text': ' I have a dream that one day this nation will rise up and live out the true meaning of its creed.'}
+```
+
+Now this result looks more accurate! For a deep-dive comparison on Wav2Vec2 vs Whisper, refer to the [Audio Transformers Course](https://huggingface.co/learn/audio-course/chapter5/asr_models).
+We really encourage you to check out the Hub for models in different languages, models specialized in your field, and more.
+You can check out and compare model results directly from your browser on the Hub to see if it fits or 
+handles corner cases better than other ones.
+source: huggingface/transformers/blob/main/docs/source/en/pipeline_tutorial.md
+score: 1.451171875
+Document 3------------------------------------------------------------
+Before you begin, make sure you have the following libraries installed:
+
+```py
+# uncomment to install the necessary libraries in Colab
+#!pip install -q diffusers transformers accelerate trimesh
+```
+
+## Text-to-3D
+
+To generate a gif of a 3D object, pass a text prompt to the [`ShapEPipeline`]. The pipeline generates a list of image frames which are used to create the 3D object.
+
+```py
+import torch
+from diffusers import ShapEPipeline
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+pipe = ShapEPipeline.from_pretrained("openai/shap-e", torch_dtype=torch.float16, variant="fp16")
+pipe = pipe.to(device)
+
+guidance_scale = 15.0
+prompt = ["A firecracker", "A birthday cupcake"]
+
+images = pipe(
+    prompt,
+    guidance_scale=guidance_scale,
+    num_inference_steps=64,
+    frame_size=256,
+).images
+```
+
+Now use the [`~utils.export_to_gif`] function to turn the list of image frames into a gif of the 3D object.
+
+```py
+from diffusers.utils import export_to_gif
+
+export_to_gif(images[0], "firecracker_3d.gif")
+export_to_gif(images[1], "cake_3d.gif")
+```
+
+<div class="flex gap-4">
+  <div>
+    <img class="rounded-xl" src="https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/shap_e/firecracker_out.gif"/>
+    <figcaption class="mt-2 text-center text-sm text-gray-500">prompt = "A firecracker"</figcaption>
+  </div>
+  <div>
+    <img class="rounded-xl" src="https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/shap_e/cake_out.gif"/>
+    <figcaption class="mt-2 text-center text-sm text-gray-500">prompt = "A birthday cupcake"</figcaption>
+  </div>
+</div>
+
+## Image-to-3D
+
+To generate a 3D object from another image, use the [`ShapEImg2ImgPipeline`].
+source: huggingface/diffusers/blob/main/docs/source/en/using-diffusers/shap-e.md
+score: 0.7255859375
+Document 4------------------------------------------------------------
+-->
+
+# Pipelines
+
+The pipelines are a great and easy way to use models for inference. These pipelines are objects that abstract most of
+the complex code from the library, offering a simple API dedicated to several tasks, including Named Entity
+Recognition, Masked Language Modeling, Sentiment Analysis, Feature Extraction and Question Answering. See the
+[task summary](../task_summary) for examples of use.
+
+There are two categories of pipeline abstractions to be aware about:
+
+- The [`pipeline`] which is the most powerful object encapsulating all other pipelines.
+- Task-specific pipelines are available for [audio](#audio), [computer vision](#computer-vision), [natural language processing](#natural-language-processing), and [multimodal](#multimodal) tasks.
+
+## The pipeline abstraction
+
+The *pipeline* abstraction is a wrapper around all the other available pipelines. It is instantiated as any other
+pipeline but can provide additional quality of life.
+
+Simple call on one item:
+
+```python
+>>> pipe = pipeline("text-classification")
+>>> pipe("This restaurant is awesome")
+[{'label': 'POSITIVE', 'score': 0.9998743534088135}]
+```
+
+If you want to use a specific model from the [hub](https://huggingface.co) you can ignore the task if the model on
+the hub already defines it:
+
+```python
+>>> pipe = pipeline(model="roberta-large-mnli")
+>>> pipe("This restaurant is awesome")
+[{'label': 'NEUTRAL', 'score': 0.7313136458396912}]
+```
+
+To call a pipeline on many items, you can call it with a *list*.
+
+```python
+>>> pipe = pipeline("text-classification")
+>>> pipe(["This restaurant is awesome", "This restaurant is awful"])
+[{'label': 'POSITIVE', 'score': 0.9998743534088135},
+ {'label': 'NEGATIVE', 'score': 0.9996669292449951}]
+```
+
+To iterate over full datasets it is recommended to use a `dataset` directly. This means you don't need to allocate
+the whole dataset at once, nor do you need to do batching yourself. This should work just as fast as custom loops on
+GPU. If it doesn't don't hesitate to create an issue.
+source: huggingface/transformers/blob/main/docs/source/en/main_classes/pipelines.md
+score: 0.51123046875
+Document 5------------------------------------------------------------
+You can check the list of supported architectures [here](https://huggingface.co/docs/optimum/exporters/onnx/overview#overview).
+
+</Tip>
+
+Once you have picked an appropriate model, you can create the [`~pipelines.pipeline`] by specifying the model repo:
+
+```python
+>>> from optimum.pipelines import pipeline
+
+# The model will be loaded to an ORTModelForQuestionAnswering.
+>>> onnx_qa = pipeline("question-answering", model="deepset/roberta-base-squad2", accelerator="ort")
+>>> question = "What's my name?"
+>>> context = "My name is Philipp and I live in Nuremberg."
+
+>>> pred = onnx_qa(question=question, context=context)
+```
+
+It is also possible to load it with the `from_pretrained(model_name_or_path, export=True)`
+method associated with the `ORTModelForXXX` class.
+
+For example, here is how you can load the [`~onnxruntime.ORTModelForQuestionAnswering`] class for question answering:
+
+```python
+>>> from transformers import AutoTokenizer
+>>> from optimum.onnxruntime import ORTModelForQuestionAnswering
+>>> from optimum.pipelines import pipeline
+
+>>> tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2")
+
+>>> # Loading the PyTorch checkpoint and converting to the ONNX format by providing
+>>> # export=True
+>>> model = ORTModelForQuestionAnswering.from_pretrained(
+...     "deepset/roberta-base-squad2",
+...     export=True
+... )
+
+>>> onnx_qa = pipeline("question-answering", model=model, tokenizer=tokenizer, accelerator="ort")
+>>> question = "What's my name?"
+>>> context = "My name is Philipp and I live in Nuremberg."
+
+>>> pred = onnx_qa(question=question, context=context)
+```
+
+### Using Optimum models
+
+The [`~pipelines.pipeline`] function is tightly integrated with the [Hugging Face Hub](https://huggingface.co/models) and can load ONNX models directly.
+
+```python
+>>> from optimum.pipelines import pipeline
+
+>>> onnx_qa = pipeline("question-answering", model="optimum/roberta-base-squad2", accelerator="ort")
+>>> question = "What's my name?"
+source: huggingface/optimum/blob/main/docs/source/onnxruntime/usage_guides/pipelines.mdx
+score: -0.0919189453125
+```
