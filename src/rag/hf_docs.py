@@ -10,11 +10,11 @@ docs = Loader().load_hf_docs()
 # retriever = ChromaBM25Retriever(
 #     collection_name="hf_docs",
 #     embedding_func=get_embedding_function(),
-#     path="./chroma",
+#     path="../../chroma",
 # ).populate(nodes, sparse_top_k=30)
 
 retriever = QdrantRetriever(
     collection_name="hf_docs",
     embedding_func=get_embedding_function(),
-    path="./qdrant",
+    path="../../qdrant",
 ).populate(documents=docs)

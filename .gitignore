@@ -1,5 +1,8 @@
 *.md
 !README.md
+!output_What are the FAANG companies?.md
+!output_What's Model Context Protocol?.md
+!output_How to create a custom huggingface pipeline object?.md
 
 .env
 
@@ -17,3 +20,7 @@ yt-test/
 __pycache__/
 
 *.mp3
+
+.langgraph_api/
+
+*.egg-info/

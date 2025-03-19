@@ -1,0 +1,195 @@
+==================================Answer==================================
+To create a custom Hugging Face pipeline object, you can follow these steps:
+
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Load pre-trained model and tokenizer
+model_name = "t5-small"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Create a custom pipeline object
+def create_custom_pipeline(model_name):
+    # Define the pipeline class
+    class CustomPipeline:
+        def __init__(self, model_name):
+            self.model = AutoModelForCausalLM.from_pretrained(model_name)
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+        def process_input(self, input_text):
+            # Process the input text using the tokenizer
+            inputs = self.tokenizer.encode_plus(input_text, return_tensors='pt', max_length=512, padding='max_length', truncation=True)
+            outputs = self.model(**inputs)
+            return outputs.last_hidden_state[:, 0, :]
+
+    return CustomPipeline(model_name)
+
+# Create a custom pipeline object
+custom_pipeline = create_custom_pipeline('t5-small')
+```
+
+In this example, we define a custom pipeline class that inherits from `AutoModelForCausalLM` and `AutoTokenizer`. We then create an instance of the custom pipeline class and call the `process_input` method to process the input text.
+
+Note that you can customize the pipeline further by adding additional methods or attributes as needed.
+
+Alternatively, you can also use the `transformers` library to create a custom pipeline without defining a custom class:
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Load pre-trained model and tokenizer
+model_name = "t5-small"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Create a custom pipeline object
+def create_custom_pipeline(model_name):
+    # Define the pipeline function
+    def process_input(text):
+        # Process the input text using the tokenizer
+        inputs = tokenizer.encode_plus(text, return_tensors='pt', max_length=512, padding='max_length', truncation=True)
+        outputs = model(inputs['input_ids'], attention_mask=inputs['attention_mask'])
+        return outputs.last_hidden_state[:, 0, :]
+
+    return process_input
+
+# Create a custom pipeline object
+custom_pipeline = create_custom_pipeline('t5-small')
+```
+
+In this example, we define a simple pipeline function that takes the input text and returns the last hidden state of the model.
+==================================Source docs==================================
+Document 1------------------------------------------------------------
+```python
+pipeline.push_to_hub("custom-t2v-pipeline")
+```
+
+After the pipeline is successfully pushed, you need a couple of changes:
+
+1. Change the `_class_name` attribute in [`model_index.json`](https://huggingface.co/sayakpaul/show-1-base-with-code/blob/main/model_index.json#L2) to `"pipeline_t2v_base_pixel"` and `"TextToVideoIFPipeline"`.
+2. Upload `showone_unet_3d_condition.py` to the `unet` [directory](https://huggingface.co/sayakpaul/show-1-base-with-code/blob/main/unet/showone_unet_3d_condition.py).
+3. Upload `pipeline_t2v_base_pixel.py` to the pipeline base [directory](https://huggingface.co/sayakpaul/show-1-base-with-code/blob/main/unet/showone_unet_3d_condition.py).
+
+To run inference, simply add the `trust_remote_code` argument while initializing the pipeline to handle all the "magic" behind the scenes.
+source: huggingface/diffusers/blob/main/docs/source/en/using-diffusers/custom_pipeline_overview.md
+score: 3.18359375
+Document 2------------------------------------------------------------
+This guide showcases some of the community pipelines and hopefully it'll inspire you to create your own (feel free to open a PR with your own pipeline and we will merge it!).
+
+To load a community pipeline, use the `custom_pipeline` argument in [`DiffusionPipeline`] to specify one of the files in [diffusers/examples/community](https://github.com/huggingface/diffusers/tree/main/examples/community):
+
+```py
+from diffusers import DiffusionPipeline
+
+pipe = DiffusionPipeline.from_pretrained(
+    "CompVis/stable-diffusion-v1-4", custom_pipeline="filename_in_the_community_folder", use_safetensors=True
+)
+```
+
+If a community pipeline doesn't work as expected, please open a GitHub issue and mention the author.
+
+You can learn more about community pipelines in the how to [load community pipelines](custom_pipeline_overview) and how to [contribute a community pipeline](contribute_pipeline) guides.
+
+## Multilingual Stable Diffusion
+
+The multilingual Stable Diffusion pipeline uses a pretrained [XLM-RoBERTa](https://huggingface.co/papluca/xlm-roberta-base-language-detection) to identify a language and the [mBART-large-50](https://huggingface.co/facebook/mbart-large-50-many-to-one-mmt) model to handle the translation. This allows you to generate images from text in 20 languages.
+source: huggingface/diffusers/blob/main/docs/source/en/using-diffusers/custom_pipeline_examples.md
+score: 2.814453125
+Document 3------------------------------------------------------------
+!--Copyright 2023 The HuggingFace Team. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+-->
+
+# Community pipelines
+
+[[open-in-colab]]
+
+<Tip>
+
+For more context about the design choices behind community pipelines, please have a look at [this issue](https://github.com/huggingface/diffusers/issues/841).
+
+</Tip>
+
+Community pipelines allow you to get creative and build your own unique pipelines to share with the community. You can find all community pipelines in the [diffusers/examples/community](https://github.com/huggingface/diffusers/tree/main/examples/community) folder along with inference and training examples for how to use them. This guide showcases some of the community pipelines and hopefully it'll inspire you to create your own (feel free to open a PR with your own pipeline and we will merge it!).
+
+To load a community pipeline, use the `custom_pipeline` argument in [`DiffusionPipeline`] to specify one of the files in [diffusers/examples/community](https://github.com/huggingface/diffusers/tree/main/examples/community):
+
+```py
+from diffusers import DiffusionPipeline
+
+pipe = DiffusionPipeline.from_pretrained(
+    "CompVis/stable-diffusion-v1-4", custom_pipeline="filename_in_the_community_folder", use_safetensors=True
+)
+```
+
+If a community pipeline doesn't work as expected, please open a GitHub issue and mention the author.
+
+You can learn more about community pipelines in the how to [load community pipelines](custom_pipeline_overview) and how to [contribute a community pipeline](contribute_pipeline) guides.
+source: huggingface/diffusers/blob/main/docs/source/en/using-diffusers/custom_pipeline_examples.md
+score: 2.775390625
+Document 4------------------------------------------------------------
+1. Start by creating a [`pipeline`] and specify the inference task:
+
+```py
+>>> from transformers import pipeline
+
+>>> transcriber = pipeline(task="automatic-speech-recognition")
+```
+
+2. Pass your input to the [`pipeline`]. In the case of speech recognition, this is an audio input file:
+
+```py
+>>> transcriber("https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac")
+{'text': 'I HAVE A DREAM BUT ONE DAY THIS NATION WILL RISE UP LIVE UP THE TRUE MEANING OF ITS TREES'}
+```
+
+Not the result you had in mind? Check out some of the [most downloaded automatic speech recognition models](https://huggingface.co/models?pipeline_tag=automatic-speech-recognition&sort=trending) 
+on the Hub to see if you can get a better transcription.
+
+Let's try the [Whisper large-v2](https://huggingface.co/openai/whisper-large) model from OpenAI. Whisper was released 
+2 years later than Wav2Vec2, and was trained on close to 10x more data. As such, it beats Wav2Vec2 on most downstream 
+benchmarks. It also has the added benefit of predicting punctuation and casing, neither of which are possible with  
+Wav2Vec2.
+
+Let's give it a try here to see how it performs:
+
+```py
+>>> transcriber = pipeline(model="openai/whisper-large-v2")
+>>> transcriber("https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac")
+{'text': ' I have a dream that one day this nation will rise up and live out the true meaning of its creed.'}
+```
+
+Now this result looks more accurate! For a deep-dive comparison on Wav2Vec2 vs Whisper, refer to the [Audio Transformers Course](https://huggingface.co/learn/audio-course/chapter5/asr_models).
+We really encourage you to check out the Hub for models in different languages, models specialized in your field, and more.
+You can check out and compare model results directly from your browser on the Hub to see if it fits or 
+handles corner cases better than other ones.
+source: huggingface/transformers/blob/main/docs/source/en/pipeline_tutorial.md
+score: 2.564453125
+Document 5------------------------------------------------------------
+To load any community pipeline on the Hub, pass the repository id of the community pipeline to the `custom_pipeline` argument and the model repository where you'd like to load the pipeline weights and components from. For example, the example below loads a dummy pipeline from [`hf-internal-testing/diffusers-dummy-pipeline`](https://huggingface.co/hf-internal-testing/diffusers-dummy-pipeline/blob/main/pipeline.py) and the pipeline weights and components from [`google/ddpm-cifar10-32`](https://huggingface.co/google/ddpm-cifar10-32):
+
+<Tip warning={true}>
+
+🔒 By loading a community pipeline from the Hugging Face Hub, you are trusting that the code you are loading is safe. Make sure to inspect the code online before loading and running it automatically!
+
+</Tip>
+
+```py
+from diffusers import DiffusionPipeline
+
+pipeline = DiffusionPipeline.from_pretrained(
+    "google/ddpm-cifar10-32", custom_pipeline="hf-internal-testing/diffusers-dummy-pipeline", use_safetensors=True
+)
+```
+
+Loading an official community pipeline is similar, but you can mix loading weights from an official repository id and pass pipeline components directly.
+source: huggingface/diffusers/blob/main/docs/source/en/using-diffusers/custom_pipeline_overview.md
+score: 2.283203125

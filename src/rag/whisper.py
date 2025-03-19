@@ -2,7 +2,7 @@ import torch
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 import json
 
-device = "cuda:2" if torch.cuda.is_available() else "cpu"
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
 torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
 model_id = "openai/whisper-large-v3-turbo"
@@ -38,8 +38,8 @@ generate_kwargs = {
     # # "no_speech_threshold": 0.6, #! will error
 }
 
-# sample = "sample1.flac"
-sample = "audio/audio.mp3"
+# sample = "../../audio/sample1.flac"
+sample = "../../audio/audio.mp3"
 
 import time
 
@@ -53,7 +53,7 @@ print("time taken: ", time.time() - start)
 docs = result["chunks"]
 print("✅ Extracted Chunks")
 
-file = "audio/audio.txt"
+file = "../../audio/audio.txt"
 with open(file, "w") as f:
     f.write(json.dumps(docs, ensure_ascii=False))
 print("✅ Saved Chunks to ", file)

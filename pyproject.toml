@@ -1,0 +1,36 @@
+[project]
+name = "rag-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.3",
+    "chromadb==0.6.3",
+    "datasets==3.3.2",
+    "duckduckgo-search>=7.5.2",
+    "fastembed>=0.6.0",
+    "flagembedding",
+    "langchain-community>=0.3.20",
+    "langchain-huggingface==0.1.2",
+    "langchain-ollama>=0.2.3",
+    "langgraph>=0.3.16",
+    "llama-index==0.12.25",
+    "llama-index-embeddings-langchain>=0.3.0",
+    "llama-index-postprocessor-flag-embedding-reranker>=0.3.0",
+    "llama-index-retrievers-bm25>=0.5.2",
+    "llama-index-vector-stores-chroma>=0.4.1",
+    "llama-index-vector-stores-pinecone>=0.4.5",
+    "llama-index-vector-stores-qdrant>=0.4.3",
+    "pinecone==6.0.2",
+    "pystemmer==2.2.0.3",
+    "qdrant-client==1.13.3",
+    "torch==2.6.0",
+    "torchvision>=0.21.0",
+    "tqdm==4.67.1",
+    "transformers==4.49.0",
+    "yt-dlp>=2025.2.19",
+]
+
+[tool.uv.sources]
+flagembedding = { git = "https://github.com/FlagOpen/FlagEmbedding.git" }

@@ -6,16 +6,24 @@ from llama_index.postprocessor.flag_embedding_reranker import FlagEmbeddingReran
 
 from get_embedding import get_embedding_function
 
-import os, torch
+import torch
+import os
 
 import argparse
 
 
-def main(query, path="tmp", collection="hf_docs", qdrant=True, chroma=False):
+def main(
+    query,
+    path="../../qdrant",
+    collection="hf_docs",
+    qdrant=True,
+    chroma=False,
+    output_file="../../rag_results.txt",
+):
     if qdrant and chroma:
         raise ValueError("Only one of Qdrant or Chroma can be used at a time")
 
-    DEVICE = "cuda:2" if torch.cuda.is_available() else "cpu"
+    DEVICE = "cuda:3" if torch.cuda.is_available() else "cpu"
 
     torch.set_default_device(DEVICE)
 
@@ -73,7 +81,24 @@ def main(query, path="tmp", collection="hf_docs", qdrant=True, chroma=False):
         print(doc.node.get_content())
         print(doc.node.get_metadata_str())
         print("score:", doc.get_score())
-    return answer
+
+    with open(output_file, "w") as f:
+        f.write(
+            "==================================Answer==================================\n"
+        )
+        f.write(f"{answer}\n")
+
+        f.write(
+            "==================================Source docs==================================\n"
+        )
+
+        for i, doc in enumerate(relevant_docs):
+            f.write(
+                f"Document {i+1}------------------------------------------------------------\n"
+            )
+            f.write(doc.node.get_content() + "\n")
+            f.write(doc.node.get_metadata_str() + "\n")
+            f.write(f"score: {doc.get_score()}\n")
 
 
 if __name__ == "__main__":
