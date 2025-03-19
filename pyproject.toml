@@ -1,7 +1,7 @@
 [project]
 name = "rag-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "This project is a simple implementation with a RAG system with YouTube data using LlamaIndex for efficient data retrieval and Qdrant or Chroma as the VectorDB to store and search the vectors. It also includes an optional Web Research Workflow that leverages real-time web data."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
