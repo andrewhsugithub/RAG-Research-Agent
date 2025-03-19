@@ -27,7 +27,7 @@ class Retriever(ABC):
         self,
         collection_name: str,
         embedding_func,
-        path: str = "./chroma_test",
+        path: str = "../../chroma_test",
         chunk_size: int = 512,
         device: str = "cuda:2",
     ):
@@ -98,9 +98,12 @@ class QdrantRetriever(Retriever):
             vector_store=self.vector_store
         )
 
+    def get_collections(self):
+        return self.qdrant_client.get_collections()
+
 
 class ChromaBM25Retriever(Retriever):
-    def __init__(self, bm25_path: str = "./bm25_retriever", *args, **kwargs):
+    def __init__(self, bm25_path: str = "../../bm25_retriever", *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.bm25_path = bm25_path
@@ -125,7 +128,7 @@ class ChromaBM25Retriever(Retriever):
             language=lang,
         )
         bm25_retriever.persist(self.bm25_path)
-        print(f"✅ Documents successfully added to ChromaDB and BM25!")
+        print("✅ Documents successfully added to ChromaDB and BM25!")
 
     def retrieve(self, top_k: int):
         index = VectorStoreIndex.from_vector_store(

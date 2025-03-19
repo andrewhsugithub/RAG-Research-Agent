@@ -5,8 +5,9 @@ This is a simple implementation of YouTube RAG using LlamaIndex and Qdrant or Ch
 - Replace `<query>` with your query and `<youtube_url>` with the YouTube URL.
     ```bash
     yt-dlp -f bestaudio --extract-audio --audio-format mp3 <youtube_url> -o "audio/audio.mp3"
+    cd src/rag
     python whisper.py
-    python rag.py --query <query> --path "./qdrant" --collection "yt" --qdrant
+    python rag.py --query <query> --path "../../qdrant" --collection "yt" --qdrant
     ```
 - Explaination of args for `rag.py`:
     - `--query`: The query you want to search for
@@ -27,8 +28,9 @@ This is a simple implementation of YouTube RAG using LlamaIndex and Qdrant or Ch
 - hf_docs:
     Uses the [HF Docs](https://huggingface.co/datasets/hf_docs) dataset
     ```bash
+    cd src/rag
     python hf_docs.py
-    python rag.py --query "How to create a pipeline object?" --path "./qdrant" --collection "hf_docs" --qdrant
+    python rag.py --query "How to create a pipeline object?" --path "../../qdrant" --collection "hf_docs" --qdrant
     ```
     See [llama3.1_hf_qdrant.txt](llama3.1_hf_qdrant.txt) for the output.
 
