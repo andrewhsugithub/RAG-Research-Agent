@@ -16,6 +16,13 @@ This project is a simple implementation with a RAG system with YouTube data usin
     - `--qdrant`: Use Qdrant as the VectorDB (default)
     - `--chroma`: Use Chroma as the VectorDB
 
+### Using Cloud VectorDBs instead of Local VectorDBs
+- if use [Qdrant](https://qdrant.com/) or [Pinecone](https://www.pinecone.io/) *(Note: not supported yet)*
+    ```bash
+    cp .env.example .env
+    ```
+    Copy your **QDRANT_API_KEY** and **QDRANT_URL** to the .env file
+
 ## Web Research Workflow
 - This workflow adds RAG to the workflow implemented in [Ollama Deep Researcher](https://github.com/langchain-ai/ollama-deep-researcher), see it for more details.
 - The RAG system is used on **hf_docs** dataset to answer the query by default
@@ -45,14 +52,6 @@ This project is a simple implementation with a RAG system with YouTube data usin
     ```
     > **_NOTE:_** in `graph.py`, in the `rag_research` function, see comments if you want to use mock rag data instead of the real data.
 
-## Use Cloud VectorDBs
-- use [Qdrant](https://qdrant.com/) or [Pinecone](https://www.pinecone.io/) *(Note: not supported yet)*
-    ```bash
-    cp .env.example .env
-    ```
-    Copy your **QDRANT_API_KEY** and **QDRANT_URL** to the .env file
-
-
 ## Examples:
 ### hf_docs
 - RAG-Only Usage:
@@ -65,7 +64,10 @@ This project is a simple implementation with a RAG system with YouTube data usin
     See [llama3.1_hf_qdrant.txt](llama3.1_hf_qdrant.txt) for the output.
     
 - Web Research Workflow:
+    - uses `deepseek-r1:8b` model
     ```bash
+    ollama pull deepseek-r1:8b
+    ollama serve
     uvx --refresh --from "langgraph-cli[inmem]" --with-editable . --python 3.11 langgraph dev
     ```
     1. Prompt 1: What's Model Context Protocol?
